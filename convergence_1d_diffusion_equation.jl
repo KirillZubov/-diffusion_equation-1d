@@ -28,6 +28,7 @@ function convergence_1d_diffusion_equation(strategy)
 
     loss_list = []
     cb = function (p,l)
+        println("Current loss is: $l")
         push!(loss_list, l)
         return false
     end
