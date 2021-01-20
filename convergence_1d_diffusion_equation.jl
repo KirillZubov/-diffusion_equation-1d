@@ -21,7 +21,7 @@ function convergence_1d_diffusion_equation(strategy)
     chain = FastChain(FastDense(2,18,Flux.σ),FastDense(18,18,Flux.σ),FastDense(18,1))
 
     discretization = NeuralPDE.PhysicsInformedNN(chain,
-                                                 strategy = strategy)
+                                                 strategy)
     phi = discretization.phi
     pde_system = PDESystem(eq,bcs,domains,[x,t],[u])
     prob = NeuralPDE.discretize(pde_system,discretization)
@@ -40,12 +40,12 @@ end
 
 losses = []
 reses = []
-grid_strategy = NeuralPDE.GridTraining(dx=[0.2,0.1])
-stochastic_strategy = NeuralPDE.StochasticTraining(number_of_points=100)
-quasirandom_strategy = NeuralPDE.QuasiRandomTraining(sampling_method = UniformSample(),
-                                                     number_of_points = 100,
-                                                     number_of_minibatch = 100)
+grid_strategy = NeuralPDE.GridTraining([0.2,0.1])
+stochastic_strategy = NeuralPDE.StochasticTraining(100)
 
+quasirandom_strategy = NeuralPDE.QuasiRandomTraining(100; #points
+                                                     sampling_alg = UniformSample(),
+                                                     minibatch = 100)
 strategies = [grid_strategy,stochastic_strategy,quasirandom_strategy]
 
 for strategy in strategies
@@ -58,7 +58,7 @@ qalgs = [HCubatureJL(), CubatureJLh(), CubatureJLp()]
 qlosses = []
 qreses = []
 for alg in qalgs
-    strategy = QuadratureTraining(algorithm =alg,reltol=1e-5,abstol=1e-5,maxiters=50)
+    strategy = QuadratureTraining(quadrature_alg =alg,reltol=1e-5,abstol=1e-5,maxiters=50)
     loss,res = convergence_1d_diffusion_equation(strategy)
     push!(qreses,res)
     push!(qlosses,loss)
